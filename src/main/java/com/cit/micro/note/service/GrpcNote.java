@@ -11,25 +11,11 @@ public class GrpcNote extends NotationGrpc.NotationImplBase {
     private final GrpcLoggerClient logger = new GrpcLoggerClient();
 
     @Override
-    public StreamObserver<Note> add(StreamObserver<Id> responseObserver){
+    public void add(Note note, StreamObserver<Id> responseObserver){
         logger.info("Adding ");
-        return new StreamObserver<Note>() {
-            @Override
-            public void onNext(Note note) {
-                //todo handle receiving pointer and text from remote caller
-
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                //todo handle failure
-            }
-
-            @Override
-            public void onCompleted() {
-                //todo handle the end of the send
-            }
-        };
+        Id id = Id.newBuilder().setId(String.valueOf(note.getId())).build();
+        responseObserver.onNext(id);
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -41,10 +27,14 @@ public class GrpcNote extends NotationGrpc.NotationImplBase {
     @Override
     public void get(Id id, StreamObserver<Note> responseObserver){
         logger.info("Finding ");
+        Note note = Note.newBuilder().build();
+        responseObserver.onNext(note);
+        responseObserver.onCompleted();
     }
 
     @Override
     public void getAll(Id id, StreamObserver<Note> responseObserver){
+
         logger.info("getting everything ");
     }
 
