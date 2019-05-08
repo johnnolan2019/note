@@ -20,7 +20,7 @@ message Result{
 service Notation{
     rpc add(Note) returns(Id);
     rpc delete(Id) returns(Result);
-    rpc get(Id) returns(Note);
+    rpc get(Id) returns(stream Note);
     rpc getAll(Id) returns(Note);
     rpc update(Note) returns(Id);
 }

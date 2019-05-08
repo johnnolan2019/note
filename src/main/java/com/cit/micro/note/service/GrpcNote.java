@@ -9,6 +9,8 @@ import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
+
 @Service
 public class GrpcNote extends NotationGrpc.NotationImplBase {
     private final GrpcLoggerClient logger = new GrpcLoggerClient();
@@ -22,6 +24,8 @@ public class GrpcNote extends NotationGrpc.NotationImplBase {
     @Override
     public void add(Note note, StreamObserver<Id> responseObserver){
         logger.info("Adding ");
+        logger.info(note.getText());
+        logger.info(String.valueOf(note.getPointer()));
         int tableId = noteService.addNote(note);
         Id id = Id.newBuilder().setId(String.valueOf(tableId)).build();
         responseObserver.onNext(id);
@@ -36,8 +40,10 @@ public class GrpcNote extends NotationGrpc.NotationImplBase {
     @Override
     public void get(Id id, StreamObserver<Note> responseObserver){
         logger.info("Finding ");
-        Note note =  noteService.getNoteById(Integer.valueOf(id.getId()));
-        responseObserver.onNext(note);
+        logger.info(id.getId());
+        Iterator<Note> iterator =  noteService.getNoteById(Integer.valueOf(id.getId())).listIterator();
+        while (iterator.hasNext())
+            responseObserver.onNext(iterator.next());
         responseObserver.onCompleted();
     }
 

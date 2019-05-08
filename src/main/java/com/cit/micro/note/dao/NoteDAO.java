@@ -4,7 +4,8 @@ import com.cit.micro.note.Note;
 import com.cit.micro.note.client.GrpcLoggerClient;
 import com.cit.micro.note.entity.NoteRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -25,48 +26,55 @@ public class NoteDAO implements INoteDAO {
 
     @Override
     public List<Note> getAllNotes() {
-        String sql = "SELECT id, text, pointer FROM note";
+        String sql = "SELECT id, text, pointer FROM notes";
         RowMapper<Note> rowMapper = new NoteRowMapper();
         return this.jdbcTemplate.query(sql, rowMapper);
     }
 
     @Override
-    public Note getNoteById(int noteId) {
-        String sql = "SELECT id, text, pointer FROM note WHERE noteId = ?";
-        RowMapper<Note> rowMapper = new BeanPropertyRowMapper<Note>(Note.class);
-        return jdbcTemplate.queryForObject(sql, rowMapper, noteId);
+    public List<Note> getNoteById(int noteId) {
+        String sql = "SELECT id, text, pointer FROM notes WHERE pointer = ?";
+        RowMapper<Note> rowMapper = new NoteRowMapper();
+        return this.jdbcTemplate.query(sql, rowMapper, noteId);
     }
 
     @Override
     public int addNote(Note note) {
-        String sql = "INSERT INTO note (text, pointer) values (?, ?)";
-        jdbcTemplate.update(sql, note.getText(), note.getPointer());
+        String sql = "INSERT INTO notes (text, pointer) values (?, ?)";
+        this.jdbcTemplate.update(sql, note.getText(), note.getPointer());
 
-        //Fetch note id
-        sql = "SELECT id FROM note WHERE text=? and pointer=?";
-        int noteId = jdbcTemplate.queryForObject(sql, Integer.class, note.getText(), note.getPointer());
+        //Fetch id
+        sql = "SELECT id FROM notes WHERE text=? and pointer=?";
 
-        //Set article id
-       return noteId;
+        int noteId = 0;
+        try{
+            noteId = this.jdbcTemplate.queryForObject(sql, Integer.class, note.getText(), note.getPointer());
+        }catch (EmptyResultDataAccessException e){
+            logger.error("Could not find ID for new entry");
+        }catch (IncorrectResultSizeDataAccessException e){
+            logger.error("Data added is not unique");
+        }
+        return noteId;
     }
 
     @Override
     public void updateNote(Note note) {
-        String sql = "UPDATE note SET text=?, pointer=? WHERE id=?";
-        jdbcTemplate.update(sql, note.getText(), note.getPointer(), note.getId());
+        String sql = "UPDATE notes SET text=?, pointer=? WHERE id=?";
+        this.jdbcTemplate.update(sql, note.getText(), note.getPointer(), note.getId());
     }
 
     @Override
     public void deleteNote(int noteId) {
-        String sql = "DELETE FROM note WHERE id=?";
-        jdbcTemplate.update(sql, noteId);
+        String sql = "DELETE FROM notes WHERE id=?";
+        this.jdbcTemplate.update(sql, noteId);
     }
 
     @Override
     public boolean noteExists(String text, int pointer) {
-        String sql = "SELECT count(*) FROM note WHERE text = ? and pointer=?";
-        int count = jdbcTemplate.queryForObject(sql, Integer.class, text, pointer);
-        return count == 0;
+        String sql = "SELECT count(*) FROM notes WHERE text = ? and pointer=?";
+        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, text, pointer);
+        logger.info("Count of exists");
+        logger.info(String.valueOf(count));
+        return count != 0;
     }
-
 }

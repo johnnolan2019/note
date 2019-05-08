@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface INoteService {
     List<Note> getAllNotes();
-    Note getNoteById(int noteId);
+    List<Note> getNoteById(int noteId);
     int addNote(Note note);
     void updateNote(Note note);
     void deleteNote(int noteId);
