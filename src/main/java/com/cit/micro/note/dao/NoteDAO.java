@@ -1,6 +1,7 @@
 package com.cit.micro.note.dao;
 
 import com.cit.micro.note.Note;
+import com.cit.micro.note.client.GrpcLoggerClient;
 import com.cit.micro.note.entity.NoteRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -8,14 +9,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
-@Transactional
+//@Transactional
 @Repository
 public class NoteDAO implements INoteDAO {
 
-    private final JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
+    private GrpcLoggerClient logger = new GrpcLoggerClient();
 
     @Autowired
     public NoteDAO(JdbcTemplate jdbcTemplate) {
@@ -37,7 +38,7 @@ public class NoteDAO implements INoteDAO {
     }
 
     @Override
-    public void addNote(Note note) {
+    public int addNote(Note note) {
         String sql = "INSERT INTO note (text, pointer) values (?, ?)";
         jdbcTemplate.update(sql, note.getText(), note.getPointer());
 
@@ -46,7 +47,7 @@ public class NoteDAO implements INoteDAO {
         int noteId = jdbcTemplate.queryForObject(sql, Integer.class, note.getText(), note.getPointer());
 
         //Set article id
-        note.toBuilder().setId(noteId);
+       return noteId;
     }
 
     @Override

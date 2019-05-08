@@ -3,13 +3,19 @@ package com.cit.micro.note.service;
 import com.cit.micro.note.Note;
 import com.cit.micro.note.dao.INoteDAO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class NoteService implements INoteService {
-    
-    @Autowired
+
     private INoteDAO noteDAO;
+
+    @Autowired
+    NoteService(INoteDAO noteDAO){
+        this.noteDAO = noteDAO;
+    }
 
     @Override
     public List<Note> getAllNotes() {
@@ -22,12 +28,11 @@ public class NoteService implements INoteService {
     }
 
     @Override
-    public boolean addNote(Note note) {
+    public int addNote(Note note) {
         if (noteDAO.noteExists(note.getText(), note.getPointer())) {
-            return false;
+            return 0;
         } else {
-            noteDAO.addNote(note);
-            return true;
+            return noteDAO.addNote(note);
         }
     }
 

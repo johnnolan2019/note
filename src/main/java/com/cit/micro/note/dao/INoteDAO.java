@@ -7,7 +7,7 @@ import java.util.List;
 public interface INoteDAO {
     List<Note> getAllNotes();
     Note getNoteById(int articleId);
-    void addNote(Note note);
+    int addNote(Note note);
     void updateNote(Note note);
     void deleteNote(int noteId);
     boolean noteExists(String text, int pointer);
