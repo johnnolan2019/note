@@ -3,8 +3,9 @@ package com.cit.micro.note;
 import com.cit.micro.note.service.GrpcServerListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
 public class NoteApplication {
 
     public static void main(String[] args) {
