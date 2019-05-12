@@ -6,6 +6,7 @@ EXPOSE 6566
 FROM java:8-jdk-alpine
 COPY --from=build /home/app/target/note-0.0.1-SNAPSHOT.jar /usr/local/lib/note.jar
 COPY --from=build /home/app/target/dependency-jars /usr/local/lib/dependency-jars
+COPY --from=build /home/app/src/main/resources/application.properties /usr/local/lib/application.properties
 WORKDIR /usr/app
 RUN sh -c 'touch note-0.0.1-SNAPSHOT.jar'
-ENTRYPOINT ["java","-jar","/usr/local/lib/note.jar"]
+ENTRYPOINT ["java","-jar","/usr/local/lib/note.jar", " --spring.config.location=file:////usr/local/lib/application.properties"]
